@@ -1,75 +1,118 @@
-# React + TypeScript + Vite
+# Telegram Chat (GREEN-API)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Простой веб-клиент для отправки и получения текстовых сообщений в Telegram через сервис [GREEN-API](https://green-api.com/). Внешний вид повторяет стандартные мессенджеры.
 
-Currently, two official plugins are available:
+Тестовое задание на должность «Фронтенд разработчик React». Задание допускало выбор мессенджера (MAX, WhatsApp или Telegram), я выбрала **Telegram**.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+<!-- TODO: вставьте ссылку на деплой -->
+**Демо:** _ссылка_
 
-## React Compiler
+<!-- TODO: вставьте ссылку на скриншоты/видео -->
+**Скриншоты / видео:** _ссылка_
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Возможности
 
-## Expanding the ESLint configuration
+- Вход по `idInstance` и `apiTokenInstance` из личного кабинета GREEN-API
+- Создание чата по номеру телефона собеседника
+- Отправка текстовых сообщений
+- Получение ответов собеседника и отображение их в чате в реальном времени
+- Запоминание учётных данных между перезагрузками страницы, кнопка «Выйти»
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Намеренно не реализовано: файлы, картинки, группы, реакции, поиск, тёмная тема. В задании просили максимально простой интерфейс с минимальным набором функций.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Стек
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- React 19 + TypeScript
+- Vite
+- Redux Toolkit + RTK Query
+- CSS Modules
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Запуск локально
 
+Понадобится Node.js 20 или новее.
+
+```bash
+git clone <ссылка на репозиторий>
+cd telegram-chat
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+Приложение откроется на `http://localhost:5173`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Сборка для продакшена:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
+npm run preview
+```
+
+## Как пользоваться
+
+1. Зарегистрируйтесь на [green-api.com](https://green-api.com/) и создайте инстанс **Telegram**.
+2. Авторизуйте в инстансе свой аккаунт Telegram, как описано в личном кабинете.
+3. В настройках инстанса включите получение уведомлений о входящих сообщениях.
+4. Скопируйте `idInstance` и `apiTokenInstance` из кабинета.
+5. Откройте приложение и введите эти данные на экране входа.
+6. Нажмите «+» над списком чатов, введите номер собеседника в международном формате (например, `79991234567`) и создайте чат.
+7. Напишите сообщение. Когда собеседник ответит в Telegram, ответ появится в окне чата.
+
+Для проверки нужен второй аккаунт Telegram: инстанс работает от имени вашего аккаунта, поэтому писать нужно кому-то другому.
+
+## Как это работает
+
+| Задача | Метод GREEN-API |
+| --- | --- |
+| Узнать `chatId` по номеру телефона | `checkAccount` |
+| Отправить сообщение | `sendMessage` |
+| Получить входящие | `receiveNotification` |
+| Подтвердить обработку уведомления | `deleteNotification` |
+
+- **Идентификатор чата.** Отправка идёт по `chatId`, а не по номеру телефона. При создании чата приложение сначала вызывает `checkAccount`, получает `chatId` и дальше работает с ним. Если у номера нет аккаунта Telegram, показывается ошибка.
+- **Получение сообщений.** Используется long polling: приложение в цикле вызывает `receiveNotification`, обрабатывает входящее текстовое сообщение и обязательно вызывает `deleteNotification`, иначе уведомление придёт повторно. Остальные типы уведомлений игнорируются (но тоже удаляются из очереди). Цикл реализован через `onCacheEntryAdded` в RTK Query: он запускается при входе и останавливается при выходе.
+- **Отправка.** Сообщение появляется в чате сразу (статус «отправляется») и получает галочку после ответа API. При ошибке отображается «!».
+- **Дубли.** Сообщения с одинаковым `idMessage` повторно не добавляются.
+
+## Структура проекта
 
 ```
+src/
+  api/
+    greenApi.ts      # RTK Query: baseQuery и эндпоинты
+    incoming.ts      # polling входящих уведомлений
+    errors.ts        # понятные сообщения об ошибках
+    types.ts
+  store/
+    index.ts
+    authSlice.ts     # учётные данные (+ localStorage)
+    chatsSlice.ts    # чаты и сообщения
+    types.ts
+    hooks.ts
+  hooks/
+    useChatActions.ts  # открытие чата и отправка сообщения
+  components/
+    LoginForm.tsx
+    ChatList.tsx
+    ChatWindow.tsx
+    MessageInput.tsx
+    Avatar.tsx
+  mocks.ts           # тестовые данные для разработки без API
+```
+
+## Режим моков
+
+Чтобы работать над вёрсткой без реального инстанса, создайте файл `.env.development.local`:
+
+```
+VITE_USE_MOCKS=true
+```
+
+После входа (подойдут любые значения) в приложении появятся тестовые чаты. Отправка и создание чатов при этом всё равно идут в реальное API.
+
+## Ограничения и замечания
+
+- **Хранение токена.** `apiTokenInstance` хранится в `localStorage` браузера. Для тестового задания это допустимо, но в продакшене токен нужно держать на бэкенде и проксировать запросы.
+- **Запросы идут напрямую из браузера.** Отдельного бэкенда нет. Приложение рассчитано на то, что GREEN-API отдаёт CORS-заголовки для браузерных запросов.
+- **История сообщений.** Хранится только в памяти страницы: GREEN-API не предоставляет приложению ранее отправленные сообщения при первом входе, поэтому после перезагрузки история чатов очищается (сохраняются только учётные данные).
+- **Только текст.** Поддерживаются обычные текстовые сообщения и сообщения со ссылками. Файлы и медиа игнорируются.
+- **Нет адаптива.** Интерфейс рассчитан на десктоп.
