@@ -1,0 +1,146 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: 340px;
+  border-right: 1px solid #eceef0;
+  background: #fff;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 16px 12px;
+}
+
+.title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.addButton {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: #000;
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.newChat {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 16px 12px;
+}
+
+.phoneInput {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 10px;
+  background: #f1f2f4;
+  outline: none;
+}
+
+.createButton {
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background: #2f80ed;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.createButton:disabled {
+  background: #b9d3f7;
+  cursor: default;
+}
+
+.list {
+  flex: 1;
+  margin: 0;
+  padding: 0 8px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.empty {
+  padding: 24px 8px;
+  color: #8a8a8a;
+  text-align: center;
+}
+
+.item {
+  display: flex;
+  width: 100%;
+  gap: 12px;
+  padding: 10px 8px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.item:hover {
+  background: #f5f6f7;
+}
+
+.active,
+.active:hover {
+  background: #eaf2ff;
+}
+
+.info {
+  min-width: 0;
+  flex: 1;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.name {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.time {
+  flex-shrink: 0;
+  color: #8a8a8a;
+  font-size: 12px;
+}
+
+.preview {
+  margin-top: 2px;
+  overflow: hidden;
+  color: #8a8a8a;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logout {
+  margin: 8px 16px 16px;
+  padding: 10px;
+  border: 1px solid #e0e3e7;
+  border-radius: 10px;
+  background: transparent;
+  color: #6b6b6b;
+  cursor: pointer;
+}
+
+.error {
+  color: #d93025;
+  font-size: 13px;
+}
